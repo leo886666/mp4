@@ -1,0 +1,22 @@
+# dependencies
+node_modules
+.npm-cache
+
+# next.js
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+
+# runtime data: database, uploads, transcoded media
+storage
+
+# local config
+.env
+.env.local
+.env.*.local
+
+# scratch
+_to_delete
+*.log
+.DS_Store

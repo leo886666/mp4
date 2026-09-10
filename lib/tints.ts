@@ -1,0 +1,47 @@
+// Auto-generated dominant color per cover — used as instant paint placeholder.
+export const TINTS: Record<string, string> = {
+  "after-dark": "#9b8969",
+  "blood-oath": "#271e18",
+  "boardroom-queen": "#b6abaa",
+  "candlelight-confessions": "#573921",
+  "cathedral-vows": "#2a3035",
+  "city-lights-confession": "#453a30",
+  "code-blue": "#4e6970",
+  "cold-pursuit": "#586241",
+  "crown-of-thorns": "#70583e",
+  "cursed-by-the-moon": "#564c52",
+  "desert-rose": "#56412c",
+  "ember-dancer": "#5d4725",
+  "empress-in-exile": "#203a51",
+  "first-love-second-chance": "#6d4e46",
+  "fragments-of-her": "#0b2b2e",
+  "golden-hour-lies": "#624c32",
+  "her-silent-revenge": "#5e5e5e",
+  "midnight-vows": "#a87e70",
+  "mothers-promise": "#3e4544",
+  "neighbor-in-4b": "#576973",
+  "one-more-summer": "#7d674c",
+  "rain-on-fifth": "#292a1e",
+  "scar-tissue": "#3a2b1c",
+  "second-chance-city": "#95856f",
+  "sisters-of-the-night": "#443332",
+  "smoke-and-shadows": "#484946",
+  "spotlight": "#9f8e85",
+  "steel-and-silk": "#8e837d",
+  "storm-watch": "#474c50",
+  "swan-song": "#214253",
+  "the-dons-daughter": "#393939",
+  "the-gilded-cage": "#95857e",
+  "the-homecoming": "#564437",
+  "the-last-heir": "#6b5a4c",
+  "the-masked-stranger": "#1c261f",
+  "the-quiet-room": "#d5ccc3",
+  "the-runaway-bride": "#587592",
+  "the-sultans-blade": "#4c5151",
+  "written-in-the-stars": "#555e62",
+};
+
+export function tintFor(cover: string): string {
+  const key = cover.replace(/^\/covers\//, "").replace(/\.jpg$/, "");
+  return TINTS[key] ?? "#E8E8EC";
+}

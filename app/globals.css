@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------- typography ------------------------------- */
+/* Loaded by a <link> in app/layout.tsx, never at build time. If the webfont
+   never arrives (offline runner, blocked CDN, self-hosting), these stacks keep
+   the design intact rather than falling back to Times. */
+:root {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Playfair Display", "Songti SC", "Source Han Serif SC", Georgia,
+    "Times New Roman", "Noto Serif", serif;
+}
+
+/* ------------------------------ theme tokens ------------------------------ */
+:root {
+  --surface: 255 255 255;   /* page */
+  --surface2: 247 247 248;  /* card / wash */
+  --line: 239 239 242;      /* hairline */
+  --ink: 23 23 28;          /* primary text */
+  --ink-soft: 74 74 82;
+  --ink-mute: 110 110 118;
+  --ink-faint: 155 155 163;
+  --invbg: 23 23 28;        /* inverted surface (dark pill / primary button) */
+  --invhi: 0 0 0;           /* inverted surface, hover */
+  --invfg: 255 255 255;     /* text on --invbg */
+  --ember: 217 43 69;       /* #D92B45 — brand accent */
+  --ember-deep: 183 33 56;  /* pressed / hover */
+  color-scheme: light;
+}
+
+.dark {
+  --surface: 12 12 15;
+  --surface2: 24 24 29;
+  --line: 42 42 50;
+  --ink: 240 240 244;
+  --ink-soft: 206 206 214;
+  --ink-mute: 162 162 173;
+  --ink-faint: 122 122 133;
+  --invbg: 44 44 53;
+  --invhi: 60 60 71;
+  --invfg: 255 255 255;
+  --ember: 240 82 104;      /* #F05268 */
+  --ember-deep: 255 112 132;
+  color-scheme: dark;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: rgb(var(--surface));
+  color: rgb(var(--ink));
+  font-feature-settings: "ss01", "cv11";
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* hide scrollbars on horizontal rails */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* hairline utilities */
+.hairline-t {
+  border-top: 1px solid rgb(var(--line));
+}
+.hairline-b {
+  border-bottom: 1px solid rgb(var(--line));
+}
+
+/* text balance for headings */
+.balance {
+  text-wrap: balance;
+}
+
+/* safe area for bottom tab bar on iOS */
+.pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px));
+}
+
+::selection {
+  background: rgb(var(--ember));
+  color: #fff;
+}
+
+/* speed: skip off-screen rendering for long grids */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 260px;
+}
+
+/* instant paint: image placeholders get the cover's dominant color */
+.img-ph {
+  background-color: var(--ph, rgb(var(--surface2)));
+}
+
+.hairline-r {
+  border-right: 1px solid rgb(var(--line));
+}
+
+/* bullet comments drift right -> left across the stage */
+@keyframes danmaku {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(-120vw); }
+}
