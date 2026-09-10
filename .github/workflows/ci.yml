@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck · build · end-to-end
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # the transcoder is part of the product, so CI exercises it for real
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+
+      - name: Boot the platform
+        run: |
+          npm start > server.log 2>&1 &
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:3300/api/health > /dev/null 2>&1; then
+              echo "up after ~$((i * 2))s"
+              curl -s http://127.0.0.1:3300/api/health
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "server never came up"; tail -120 server.log; exit 1
+        env:
+          VESPER_SECRET: ci-only-secret-not-for-production
+          VESPER_SEED: "1"
+          VESPER_SEED_MEDIA: "1"
+
+      - name: End-to-end smoke
+        run: npm run smoke
+
+      - name: Server log
+        if: failure()
+        run: tail -200 server.log
+
+  image:
+    name: Docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: vesper:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Boot the image
+        run: |
+          docker run -d --name vesper -p 3300:3300 \
+            -e VESPER_SECRET=ci-only-secret -e VESPER_SEED=1 -e VESPER_SEED_MEDIA=0 \
+            vesper:ci
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:3300/api/health > /dev/null 2>&1; then
+              curl -s http://127.0.0.1:3300/api/health; docker rm -f vesper; exit 0
+            fi
+            sleep 2
+          done
+          echo "container never became healthy"; docker logs vesper; exit 1

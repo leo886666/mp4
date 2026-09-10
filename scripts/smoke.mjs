@@ -86,7 +86,17 @@ async function main() {
   check("GET /api/genres", (await get("anon", "/api/genres")).status === 200);
 
   section("Playback gate");
-  const play = await get("anon", `/api/episodes/${freeEp.id}/play`);
+  // On a fresh boot the transcoder is still working through the catalogue —
+  // wait for this episode's ladder rather than racing it.
+  let play = await get("anon", `/api/episodes/${freeEp.id}/play`);
+  for (let i = 0; i < 60 && !(data(play).sources || []).some((s) => s.type === "hls"); i++) {
+    if (i === 0) process.stdout.write("  … waiting for the transcoder");
+    process.stdout.write(".");
+    await new Promise((r) => setTimeout(r, 2000));
+    play = await get("anon", `/api/episodes/${freeEp.id}/play`);
+    if (i === 59) console.log();
+  }
+  if ((data(play).sources || []).some((s) => s.type === "hls")) console.log();
   check("free episode plays without an account", play.status === 200 && !!data(play).token);
   const sources = data(play).sources || [];
   if (check("HLS source present", sources.some((s) => s.type === "hls"), JSON.stringify(data(play).media))) {

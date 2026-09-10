@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+storage
+_to_delete
+.git
+.github
+*.log
+*.tgz
+*.tsbuildinfo
+.env
+.env.local
+.DS_Store
+docs
+README.md

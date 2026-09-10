@@ -1,5 +1,7 @@
 # VESPER — bite-size cinematic dramas
 
+[![CI](https://github.com/leo886666/mp4/actions/workflows/ci.yml/badge.svg)](https://github.com/leo886666/mp4/actions/workflows/ci.yml)
+
 A full-stack short-drama streaming platform: viewer app, Creator Studio and ops console,
 on one Next.js 14 codebase with a real database, real video transcoding and a real
 paywall.
@@ -156,6 +158,27 @@ Needs a Node runtime with a writable volume for `storage/` and `ffmpeg` on `PATH
 (or `VESPER_STORAGE_DRIVER=s3` plus a transcode worker on the same image). Set
 `VESPER_SECRET` and `VESPER_SEED=0`. Put a CDN in front of `VESPER_CDN_BASE` and the
 stream route hands out redirects instead of proxying bytes.
+
+### Docker
+
+```bash
+docker build -t vesper .
+docker run -d -p 3300:3300 \
+  -v vesper-data:/data \
+  -e VESPER_SECRET="$(openssl rand -hex 32)" \
+  vesper
+```
+
+The image ships `ffmpeg` and runs as the unprivileged `node` user. `/data` holds the
+database, uploads and transcoded HLS — use a **named volume**; a bind mount needs
+`chown 1000:1000` first. `VESPER_SEED` defaults to `0` in the image, so a production
+container starts with an empty catalogue; set it to `1` for a demo deployment.
+
+### CI
+
+`.github/workflows/ci.yml` runs on every push and PR: typecheck → production build →
+boot the server → the full 81-assertion smoke suite (with a real `ffmpeg` transcode),
+plus a separate job that builds the Docker image and waits for its healthcheck.
 
 ## Scripts
 
