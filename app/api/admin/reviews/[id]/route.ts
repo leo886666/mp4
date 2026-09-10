@@ -10,8 +10,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** Approve/reject a submission — and actually publish or bounce the content. */
-export const POST = route(async (req: Request, { params }: { params: { id: string } }) => {
-  const operator = requirePerm("review.decide");
+export const POST = route(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const operator = await requirePerm("review.decide");
   const item = getReview(params.id);
   if (!item) throw notFound("Review item not found");
 

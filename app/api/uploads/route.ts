@@ -15,7 +15,7 @@ const MAX_BYTES = 2 * 1024 * 1024 * 1024; // 2 GB
  * parts are stored independently so a dropped connection only costs one chunk.
  */
 export const POST = route(async (req: Request) => {
-  const user = requireUser("site");
+  const user = await requireUser("site");
   const data = await body(req);
   const kind = oneOf(data.kind, "kind", KINDS, "video");
   const filename = str(data.filename, "filename", { max: 200 });

@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 const TARGETS = ["series", "episode", "comment", "user"] as const;
 
 export const POST = route(async (req: Request) => {
-  const user = optionalUser("site");
+  const user = await optionalUser("site");
   const data = await body(req);
   const id = createReport({
     reporterId: user?.id ?? null,

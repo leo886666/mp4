@@ -1,10 +1,16 @@
 name: CI
 
+# Actions minutes are metered on private repos and this account has hit the
+# free ceiling before, so nothing runs on a plain push. CI fires only when you
+# ask for it (Actions tab -> Run workflow) or on a pull request.
+# To go back to running on every push to main, add:
+#   push:
+#     branches: [main]
+#     paths-ignore: ["**.md", "docs/**"]
 on:
-  push:
-    branches: [main]
-  pull_request:
   workflow_dispatch:
+  pull_request:
+    paths-ignore: ["**.md", "docs/**", ".gitignore"]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -64,6 +70,8 @@ jobs:
 
   image:
     name: Docker image
+    # only on demand or on a v* tag — this job costs ~8 minutes a run
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -77,7 +85,7 @@ jobs:
           load: true
           tags: vesper:ci
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=min
       - name: Boot the image
         run: |
           docker run -d --name vesper -p 3300:3300 \

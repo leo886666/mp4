@@ -62,8 +62,23 @@ export function recentJobs(limit = 20) {
   return all<JobRow>("SELECT * FROM jobs ORDER BY created_at DESC LIMIT ?", limit);
 }
 
+/**
+ * Claim the oldest queued job *this process knows how to run*.
+ *
+ * The server has more than one module instance — instrumentation.ts boots one
+ * (which registers every handler) while route handlers live in another (which
+ * may only have registered `transcode` on its way to enqueueing one). Filtering
+ * by the local handler set stops an instance from claiming work it would only
+ * fail; the booted worker picks those up on its next tick instead.
+ */
 function claim(): JobRow | null {
-  const job = get<JobRow>("SELECT * FROM jobs WHERE status = 'queued' ORDER BY created_at ASC LIMIT 1");
+  const kinds = [...handlers.keys()];
+  if (!kinds.length) return null;
+  const marks = kinds.map(() => "?").join(", ");
+  const job = get<JobRow>(
+    `SELECT * FROM jobs WHERE status = 'queued' AND kind IN (${marks}) ORDER BY created_at ASC LIMIT 1`,
+    ...kinds
+  );
   if (!job) return null;
   const res = run("UPDATE jobs SET status='running', started_at=?, attempts=attempts+1 WHERE id=? AND status='queued'", now(), job.id);
   return res.changes ? { ...job, status: "running" } : null;
@@ -78,7 +93,8 @@ async function drain() {
       if (!job) break;
       const handler = handlers.get(job.kind);
       if (!handler) {
-        run("UPDATE jobs SET status='failed', error=?, finished_at=? WHERE id=?", `no handler for ${job.kind}`, now(), job.id);
+        // shouldn't happen now that claim() filters, but never strand a job
+        run("UPDATE jobs SET status='queued', started_at=NULL WHERE id=?", job.id);
         continue;
       }
       try {

@@ -11,8 +11,8 @@ import type { UserRow } from "../repo/users";
  * a creators row is provisioned for it. Staff keep their own creator identity
  * so their test uploads never land in someone else's payout.
  */
-export function creatorContext(create = true): { user: UserRow; creator: CreatorRow | null } {
-  const user = requireUser("site");
+export async function creatorContext(create = true): Promise<{ user: UserRow; creator: CreatorRow | null }> {
+  const user = await requireUser("site");
   let creator = creatorForUser(user.id);
   if (!creator && create) {
     creator = createCreator({ name: user.name, userId: user.id, role: "Creator" });
@@ -20,8 +20,8 @@ export function creatorContext(create = true): { user: UserRow; creator: Creator
   return { user, creator };
 }
 
-export function requireCreator(): { user: UserRow; creator: CreatorRow } {
-  const { user, creator } = creatorContext(true);
+export async function requireCreator(): Promise<{ user: UserRow; creator: CreatorRow }> {
+  const { user, creator } = await creatorContext(true);
   if (!creator) throw forbidden("No creator profile");
   return { user, creator };
 }

@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async () => {
-  requirePerm("console.view");
+  await requirePerm("console.view");
   const rows = campaignRows().map((c: any) => {
     const spend = Number(c.spend_cents);
     const revenue = Number(c.revenue_cents);
@@ -40,7 +40,7 @@ export const GET = route(async () => {
 });
 
 export const POST = route(async (req: Request) => {
-  const operator = requirePerm("campaigns.write");
+  const operator = await requirePerm("campaigns.write");
   const data = await body(req);
   const campaign = createCampaign({
     channel: str(data.channel, "channel", { max: 40 }),

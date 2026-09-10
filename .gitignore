@@ -19,4 +19,5 @@ storage
 # scratch
 _to_delete
 *.log
+*.tgz
 .DS_Store

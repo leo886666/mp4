@@ -8,8 +8,9 @@ import { audit } from "@/lib/server/audit";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const PATCH = route(async (req: Request, { params }: { params: { id: string } }) => {
-  const { user, creator } = requireCreator();
+export const PATCH = route(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const { user, creator } = await requireCreator();
   const episode = getEpisode(params.id);
   if (!episode) throw notFound("Episode not found");
   const series = getSeries(episode.series_id)!;
@@ -34,8 +35,9 @@ export const PATCH = route(async (req: Request, { params }: { params: { id: stri
   return ok({ episode: episodeDTO(updated as any, series.cover_url) });
 });
 
-export const DELETE = route(async (_req: Request, { params }: { params: { id: string } }) => {
-  const { user, creator } = requireCreator();
+export const DELETE = route(async (_req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const { user, creator } = await requireCreator();
   const episode = getEpisode(params.id);
   if (!episode) throw notFound("Episode not found");
   const series = getSeries(episode.series_id)!;

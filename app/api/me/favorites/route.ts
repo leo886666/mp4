@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async (req: Request) => {
-  const user = requireUser("site");
+  const user = await requireUser("site");
   const p = paging(new URL(req.url), 40);
   const { rows, total } = favoritesFor(user.id, p.perPage, p.offset);
   return ok(paged(seriesListDTO(rows as any), total, p));

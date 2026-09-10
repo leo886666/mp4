@@ -15,11 +15,12 @@ import { heroOr } from "@/lib/placeholders";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export default function TitlePage({ params }: { params: { id: string } }) {
-  const user = optionalUser("site");
+export default async function TitlePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const user = await optionalUser("site");
   let view;
   try {
-    view = titleView(params.id, user);
+    view = titleView(id, user);
   } catch {
     notFound();
   }

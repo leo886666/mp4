@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async () => {
-  const user = requireUser("site");
+  const user = await requireUser("site");
   const sub = activeSubscription(user.id);
   if (!sub) return ok({ subscription: null, vipUntil: user.vip_until });
   const plan = getPlan(sub.plan_id);
@@ -27,7 +27,7 @@ export const GET = route(async () => {
 });
 
 export const POST = route(async (req: Request) => {
-  const user = requireUser("site");
+  const user = await requireUser("site");
   const data = await body(req);
   const action = oneOf(data.action, "action", ["cancel", "resume"] as const);
   const sub = action === "cancel" ? cancelSubscription(user.id) : resumeSubscription(user.id);

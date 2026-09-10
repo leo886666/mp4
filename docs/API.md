@@ -20,6 +20,9 @@ Every endpoint lives under `/api`, speaks JSON, and returns the same envelope:
 | `conflict` (409) | e.g. email already registered |
 | `server_error` (500) | Unhandled — logged server-side |
 
+Route handlers run on the Node runtime and receive `params` as a promise
+(Next 16): `ctx.params` is awaited once at the top of every handler.
+
 **Auth** is cookie-based. Two independent scopes:
 
 | Cookie | Scope | Set by |

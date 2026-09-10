@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async (req: Request) => {
-  requirePerm("console.view");
+  await requirePerm("console.view");
   const days = Math.min(180, Math.max(7, parseInt(new URL(req.url).searchParams.get("days") || "90", 10)));
   return ok({
     kpis: kpis(),

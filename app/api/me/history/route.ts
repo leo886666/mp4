@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async (req: Request) => {
-  const user = requireUser("site");
+  const user = await requireUser("site");
   const url = new URL(req.url);
   const p = paging(url, 30);
   const { rows, total } = historyFor(user.id, p.perPage, p.offset);
@@ -34,7 +34,7 @@ export const GET = route(async (req: Request) => {
 });
 
 export const DELETE = route(async (req: Request) => {
-  const user = requireUser("site");
+  const user = await requireUser("site");
   const episodeId = new URL(req.url).searchParams.get("episodeId");
   if (episodeId) removeHistory(user.id, episodeId);
   else clearHistory(user.id);

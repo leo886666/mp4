@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const POST = route(async () => {
-  const token = cookies().get(COOKIE.site)?.value;
+  const token = (await cookies()).get(COOKIE.site)?.value;
   if (token) revokeSession(token);
   const res = ok({ signedOut: true }) as NextResponse;
   clearSessionCookie(res, "site");

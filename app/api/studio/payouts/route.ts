@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async () => {
-  const { creator } = requireCreator();
+  const { creator } = await requireCreator();
   return ok({
     balance: creator.balance_cents / 100,
     minPayout: getSetting<number>("creator.minPayoutCents") / 100,
@@ -19,7 +19,7 @@ export const GET = route(async () => {
 
 /** Withdraw request — lands in the console's payout queue as 'pending'. */
 export const POST = route(async (req: Request) => {
-  const { user, creator } = requireCreator();
+  const { user, creator } = await requireCreator();
   const data = await body(req).catch(() => ({}) as any);
   const min = getSetting<number>("creator.minPayoutCents");
   const amountCents = Math.round(num(data.amount, "amount", { optional: true, def: creator.balance_cents / 100 }) * 100);

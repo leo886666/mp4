@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async () => {
-  requirePerm("content.read");
+  await requirePerm("content.read");
   return ok({
     rails: listRailsAdmin(),
     banners: listBannersAdmin(),
@@ -18,7 +18,7 @@ export const GET = route(async () => {
 });
 
 export const POST = route(async (req: Request) => {
-  const operator = requirePerm("content.write");
+  const operator = await requirePerm("content.write");
   const data = await body(req);
   const type = str(data.type, "type");
   if (type === "rail") {

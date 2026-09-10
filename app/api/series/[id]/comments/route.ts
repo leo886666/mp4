@@ -10,7 +10,8 @@ export const dynamic = "force-dynamic";
 
 const BANNED = ["http://", "https://", "t.me/", "wechat"];
 
-export const GET = route(async (req: Request, { params }: { params: { id: string } }) => {
+export const GET = route(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
   const p = paging(new URL(req.url), 20);
   const { rows, total } = listComments(params.id, p.perPage, p.offset);
   return ok(
@@ -29,8 +30,9 @@ export const GET = route(async (req: Request, { params }: { params: { id: string
   );
 });
 
-export const POST = route(async (req: Request, { params }: { params: { id: string } }) => {
-  const user = requireUser("site");
+export const POST = route(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const user = await requireUser("site");
   if (!getSeries(params.id)) throw notFound("Series not found");
   const data = await body(req);
   let text = str(data.body, "body", { min: 1, max: 500 });

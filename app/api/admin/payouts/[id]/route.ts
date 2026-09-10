@@ -8,8 +8,9 @@ import { notify } from "@/lib/server/notify";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const POST = route(async (req: Request, { params }: { params: { id: string } }) => {
-  const operator = requirePerm("payouts.write");
+export const POST = route(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const operator = await requirePerm("payouts.write");
   const data = await body(req);
   const status = oneOf(data.status, "status", ["scheduled", "paid", "hold", "pending"] as const);
   const payout: any = markPayout(params.id, status, operator.id);

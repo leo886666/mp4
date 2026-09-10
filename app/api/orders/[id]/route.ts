@@ -7,8 +7,9 @@ import { isStaff } from "@/lib/server/rbac";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const GET = route(async (_req: Request, { params }: { params: { id: string } }) => {
-  const user = requireUser("site");
+export const GET = route(async (_req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const user = await requireUser("site");
   const order = getOrder(params.id);
   if (!order) throw notFound("Order not found");
   if (order.user_id !== user.id && !isStaff(user.role)) throw forbidden();

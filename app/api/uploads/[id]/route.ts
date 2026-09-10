@@ -8,8 +8,9 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 /** Resumable upload, step 2: one part per request. */
-export const PUT = route(async (req: Request, { params }: { params: { id: string } }) => {
-  const user = requireUser("site");
+export const PUT = route(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const user = await requireUser("site");
   const upload = getUpload(params.id);
   if (!upload) throw notFound("Upload session not found");
   if (upload.user_id !== user.id) throw forbidden();
@@ -31,7 +32,8 @@ export const PUT = route(async (req: Request, { params }: { params: { id: string
   });
 });
 
-export const GET = route(async (_req: Request, { params }: { params: { id: string } }) => {
+export const GET = route(async (_req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
   const upload = getUpload(params.id);
   if (!upload) throw notFound("Upload session not found");
   return ok({

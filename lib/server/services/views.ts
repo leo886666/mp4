@@ -2,7 +2,6 @@ import { activeBanners, activeRails, getSeries, listEpisodes, listSeries, relate
 import { episodeDTO, seriesDTO, seriesListDTO } from "../dto";
 import { continueWatching, isFavorite, listComments, progressForSeries } from "../repo/engagement";
 import { decideAccess } from "../entitlements";
-import { optionalUser } from "../session";
 import { coverOr } from "@/lib/placeholders";
 import { notFound } from "../http";
 import type { UserRow } from "../repo/users";
@@ -15,7 +14,7 @@ import type { UserRow } from "../repo/users";
  * never drift apart.
  */
 
-export function homeView(user: UserRow | null = optionalUser("site")) {
+export function homeView(user: UserRow | null) {
   const banners = activeBanners();
   const heroById = new Map(seriesByIds(banners.map((b) => b.series_id!).filter(Boolean)).map((s) => [s.id, s]));
 
@@ -62,7 +61,7 @@ export function homeView(user: UserRow | null = optionalUser("site")) {
   };
 }
 
-export function titleView(id: string, user: UserRow | null = optionalUser("site")) {
+export function titleView(id: string, user: UserRow | null) {
   const row = getSeries(id);
   if (!row) throw notFound("Series not found");
   const staff = user && ["reviewer", "admin", "owner"].includes(user.role);

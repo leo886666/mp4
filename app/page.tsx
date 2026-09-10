@@ -13,8 +13,8 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 /** Server-rendered from the database — same read model the REST API serves. */
-export default function HomePage() {
-  const user = optionalUser("site");
+export default async function HomePage() {
+  const user = await optionalUser("site");
   const home = homeView(user);
   const allGenres = genres();
   const top10a = home.top10.slice(0, 5);

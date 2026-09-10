@@ -10,14 +10,14 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async (req: Request) => {
-  const { creator } = requireCreator();
+  const { creator } = await requireCreator();
   const status = new URL(req.url).searchParams.get("status") ?? undefined;
   const { rows, total } = listSeries({ creatorId: creator.id, status, limit: 100, offset: 0, sort: "updated" });
   return ok({ items: seriesListDTO(rows), total, genres: genres() });
 });
 
 export const POST = route(async (req: Request) => {
-  const { user, creator } = requireCreator();
+  const { user, creator } = await requireCreator();
   const data = await body(req);
   const title = str(data.title, "title", { min: 2, max: 80 });
   const genreId = oneOf(data.genre, "genre", genres().map((g) => g.id) as [string, ...string[]]);

@@ -221,6 +221,11 @@ async function main() {
   }
   check(`uploaded video transcoded to HLS (status=${mediaStatus})`, mediaStatus === "ready");
 
+  // enqueueing from a route handler must not strand the boot worker's own jobs
+  const jobs = data(await get("anon", "/api/health")).jobs || [];
+  const failed = jobs.find((j) => j.status === "failed");
+  check("no job orphaned by the upload", !failed, JSON.stringify(jobs));
+
   const submit = await post("creator", `/api/studio/series/${newSeriesId}/submit`, {});
   check("submitted for review", submit.status === 200 && data(submit).status === "review");
   check("GET /api/studio/earnings", (await get("creator", "/api/studio/earnings")).status === 200);

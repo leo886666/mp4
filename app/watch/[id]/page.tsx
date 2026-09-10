@@ -18,17 +18,24 @@ function resumeEpisode(episodes: { n: number; locked?: boolean; progress?: { com
   return last.n;
 }
 
-export default function WatchPage({ params, searchParams }: { params: { id: string }; searchParams: { ep?: string } }) {
-  const user = optionalUser("site");
+export default async function WatchPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ ep?: string }>;
+}) {
+  const [{ id }, query] = await Promise.all([params, searchParams]);
+  const user = await optionalUser("site");
   let view;
   try {
-    view = titleView(params.id, user);
+    view = titleView(id, user);
   } catch {
     notFound();
   }
   // No ?ep= (a poster tapped on Home or History) → resume where they stopped.
-  const startEp = searchParams.ep
-    ? Math.max(1, parseInt(searchParams.ep, 10) || 1)
+  const startEp = query.ep
+    ? Math.max(1, parseInt(query.ep, 10) || 1)
     : resumeEpisode(view!.episodes);
   return (
     <PlayerClient

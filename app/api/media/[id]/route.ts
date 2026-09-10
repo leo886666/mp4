@@ -10,7 +10,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** Asset status (polled while transcoding) or the raw image bytes. */
-export const GET = route(async (req: Request, { params }: { params: { id: string } }) => {
+export const GET = route(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
   const asset = getAsset(params.id);
   if (!asset) throw notFound("Media not found");
 

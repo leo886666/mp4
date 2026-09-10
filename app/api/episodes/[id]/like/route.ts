@@ -6,8 +6,9 @@ import { toggleLike } from "@/lib/server/repo/engagement";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const POST = route(async (_req: Request, { params }: { params: { id: string } }) => {
-  const user = requireUser("site");
+export const POST = route(async (_req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const user = await requireUser("site");
   if (!getEpisode(params.id)) throw notFound("Episode not found");
   return ok({ liked: toggleLike(user.id, "episode", params.id) });
 });

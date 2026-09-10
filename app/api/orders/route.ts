@@ -11,7 +11,7 @@ const KINDS = ["subscription", "episode", "series"] as const;
 
 /** Create an order and hand back a gateway checkout session. */
 export const POST = route(async (req: Request) => {
-  const user = requireUser("site");
+  const user = await requireUser("site");
   const data = await body(req);
   const kind = oneOf(data.kind, "kind", KINDS);
   const { order, session } = await startCheckout({
@@ -38,7 +38,7 @@ export const POST = route(async (req: Request) => {
 });
 
 export const GET = route(async (req: Request) => {
-  const user = requireUser("site");
+  const user = await requireUser("site");
   const p = paging(new URL(req.url), 20);
   const { rows, total } = listOrders({ userId: user.id, limit: p.perPage, offset: p.offset });
   return ok(paged(rows, total, p));

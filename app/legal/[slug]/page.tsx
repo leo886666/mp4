@@ -7,8 +7,9 @@ export function generateStaticParams() {
   return LEGAL_DOCS.map((d) => ({ slug: d.slug }));
 }
 
-export default async function LegalPage({ params }: { params: { slug: string } }) {
-  const doc = legalBySlug(params.slug);
+export default async function LegalPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const doc = legalBySlug(slug);
   if (!doc) notFound();
   return (
     <div className="mx-auto max-w-[720px] px-5 pt-6 lg:pt-10 pb-16 animate-fade-up">

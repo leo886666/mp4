@@ -8,8 +8,9 @@ import { audit } from "@/lib/server/audit";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const POST = route(async (req: Request, { params }: { params: { id: string } }) => {
-  const operator = requirePerm("reports.handle");
+export const POST = route(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const operator = await requirePerm("reports.handle");
   const data = await body(req);
   const status = oneOf(data.status, "status", ["resolved", "dismissed"] as const);
   const action = oneOf(data.action, "action", ["none", "hide", "offline"] as const, "none");

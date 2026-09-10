@@ -20,8 +20,9 @@ export const dynamic = "force-dynamic";
  * manifest or segment request without it. Locked episodes return 402 with the
  * exact unlock path (sign in / go VIP / buy this episode).
  */
-export const GET = route(async (req: Request, { params }: { params: { id: string } }) => {
-  const user = optionalUser("site");
+export const GET = route(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const user = await optionalUser("site");
   const { episode, series } = loadPlayable(params.id);
 
   const decision = decideAccess(user, series, episode);

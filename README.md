@@ -3,13 +3,15 @@
 [![CI](https://github.com/leo886666/mp4/actions/workflows/ci.yml/badge.svg)](https://github.com/leo886666/mp4/actions/workflows/ci.yml)
 
 A full-stack short-drama streaming platform: viewer app, Creator Studio and ops console,
-on one Next.js 14 codebase with a real database, real video transcoding and a real
+on one Next.js 16 codebase with a real database, real video transcoding and a real
 paywall.
 
 ```bash
 npm install
 npm run dev          # http://localhost:3300
 ```
+
+Requires **Node 22.5+** — the database driver is Node's built-in `node:sqlite`.
 
 That single command migrates the schema, seeds a believable platform (12 000 accounts,
 41 series, 1 182 episodes, ~1 000 orders, 400 000 events), starts the job worker and
@@ -26,7 +28,7 @@ begins transcoding a sample HLS ladder for every series. Nothing else to configu
 Verify the whole thing end to end:
 
 ```bash
-npm run smoke        # 81 assertions: signup → paywall → pay → HLS bytes → upload
+npm run smoke        # 82 assertions: signup → paywall → pay → HLS bytes → upload
                      # → transcode → review → publish → refund → VIP revoked
 ```
 
@@ -177,7 +179,7 @@ container starts with an empty catalogue; set it to `1` for a demo deployment.
 ### CI
 
 `.github/workflows/ci.yml` runs on every push and PR: typecheck → production build →
-boot the server → the full 81-assertion smoke suite (with a real `ffmpeg` transcode),
+boot the server → the full 82-assertion smoke suite (with a real `ffmpeg` transcode),
 plus a separate job that builds the Docker image and waits for its healthcheck.
 
 ## Scripts
@@ -186,6 +188,6 @@ plus a separate job that builds the Docker image and waits for its healthcheck.
 | --- | --- |
 | `npm run dev` | migrate + seed + worker + dev server on :3300 |
 | `npm run build` / `npm start` | production build / server |
-| `npm run smoke` | 81-assertion end-to-end test against a running server |
+| `npm run smoke` | 82-assertion end-to-end test against a running server |
 | `npm run db:reset` | delete the database and media, next boot reseeds |
 | `npm run db:inspect` | row counts per table |

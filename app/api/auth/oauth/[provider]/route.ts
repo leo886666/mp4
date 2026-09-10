@@ -35,7 +35,8 @@ async function resolveProfile(provider: string, data: Record<string, any>) {
   };
 }
 
-export const POST = route(async (req: Request, { params }: { params: { provider: string } }) => {
+export const POST = route(async (req: Request, ctx: { params: Promise<{ provider: string }> }) => {
+    const params = await ctx.params;
   const provider = oneOf(params.provider, "provider", PROVIDERS);
   const data = await body(req).catch(() => ({}) as Record<string, any>);
   const profile = await resolveProfile(provider, data);

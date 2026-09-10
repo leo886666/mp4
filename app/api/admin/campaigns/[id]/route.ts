@@ -6,8 +6,9 @@ import { audit } from "@/lib/server/audit";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const PATCH = route(async (req: Request, { params }: { params: { id: string } }) => {
-  const operator = requirePerm("campaigns.write");
+export const PATCH = route(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const operator = await requirePerm("campaigns.write");
   const data = await body(req);
   const patch: Record<string, any> = {};
   if (data.status !== undefined) patch.status = oneOf(data.status, "status", ["running", "paused", "ended"] as const);

@@ -14,7 +14,7 @@ const ALLOWED = new Set([
 
 /** Batched client telemetry — the same table the ops console reads. */
 export const POST = route(async (req: Request) => {
-  const user = optionalUser("site");
+  const user = await optionalUser("site");
   const data = await body<{ events?: any[] }>(req);
   const events = Array.isArray(data.events) ? data.events.slice(0, 50) : [];
   let stored = 0;

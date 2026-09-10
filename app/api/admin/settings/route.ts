@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async () => {
-  requirePerm("console.view");
+  await requirePerm("console.view");
   return ok({
     settings: allSettings(),
     defaults: SETTING_DEFAULTS,
@@ -26,7 +26,7 @@ export const GET = route(async () => {
 });
 
 export const PATCH = route(async (req: Request) => {
-  const operator = requirePerm("settings.write");
+  const operator = await requirePerm("settings.write");
   const data = await body<Record<string, unknown>>(req);
   const changed: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(data)) {

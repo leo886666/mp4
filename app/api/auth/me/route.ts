@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async () => {
-  const user = currentUser("site");
+  const user = await currentUser("site");
   if (!user) return ok({ user: null });
   const sub = activeSubscription(user.id);
   return ok({
@@ -25,7 +25,7 @@ export const GET = route(async () => {
 });
 
 export const PATCH = route(async (req: Request) => {
-  const user = requireUser("site");
+  const user = await requireUser("site");
   const data = await body(req);
   const name = str(data.name, "name", { min: 2, max: 40, optional: true });
   const patch: Record<string, any> = {};

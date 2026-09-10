@@ -56,41 +56,46 @@ export function userForToken(token: string | undefined, scope: SessionScope): Us
 }
 
 /* ------------------------------ request side ------------------------------ */
+/*
+ * `cookies()` is async from Next 15 on, so every guard below is a promise.
+ * Server components that read a session are async for the same reason.
+ */
 
-export function currentUserRow(scope: SessionScope = "site"): UserRow | null {
-  const token = cookies().get(COOKIE[scope])?.value;
+export async function currentUserRow(scope: SessionScope = "site"): Promise<UserRow | null> {
+  const jar = await cookies();
+  const token = jar.get(COOKIE[scope])?.value;
   const user = userForToken(token, scope);
   if (user) touch(user.id);
   return user;
 }
 
-export function currentUser(scope: SessionScope = "site"): PublicUser | null {
-  const row = currentUserRow(scope);
+export async function currentUser(scope: SessionScope = "site"): Promise<PublicUser | null> {
+  const row = await currentUserRow(scope);
   return row ? toPublic(row) : null;
 }
 
-export function requireUser(scope: SessionScope = "site"): UserRow {
-  const u = currentUserRow(scope);
+export async function requireUser(scope: SessionScope = "site"): Promise<UserRow> {
+  const u = await currentUserRow(scope);
   if (!u) throw unauthorized();
   return u;
 }
 
-export function requireRole(min: Role, scope: SessionScope = "site"): UserRow {
-  const u = requireUser(scope);
+export async function requireRole(min: Role, scope: SessionScope = "site"): Promise<UserRow> {
+  const u = await requireUser(scope);
   if (!atLeast(u.role, min)) throw forbidden(`Requires ${min} role`);
   return u;
 }
 
 /** Console guard: admin-scoped cookie + explicit permission. */
-export function requirePerm(perm: Permission): UserRow {
-  const u = requireUser("admin");
+export async function requirePerm(perm: Permission): Promise<UserRow> {
+  const u = await requireUser("admin");
   if (!can(u.role, perm)) throw forbidden(`Missing permission: ${perm}`);
   return u;
 }
 
-export function optionalUser(scope: SessionScope = "site"): UserRow | null {
+export async function optionalUser(scope: SessionScope = "site"): Promise<UserRow | null> {
   try {
-    return currentUserRow(scope);
+    return await currentUserRow(scope);
   } catch {
     return null;
   }

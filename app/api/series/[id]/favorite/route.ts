@@ -7,8 +7,9 @@ import { track } from "@/lib/server/repo/stats";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const POST = route(async (_req: Request, { params }: { params: { id: string } }) => {
-  const user = requireUser("site");
+export const POST = route(async (_req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const user = await requireUser("site");
   if (!getSeries(params.id)) throw notFound("Series not found");
   const favorite = toggleFavorite(user.id, params.id);
   if (favorite) track("favorite", { userId: user.id, seriesId: params.id });

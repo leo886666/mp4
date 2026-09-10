@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async () => {
-  requirePerm("console.view");
+  await requirePerm("console.view");
   return ok({
     depth: queueDepth(),
     recent: recentJobs(30),
@@ -17,7 +17,7 @@ export const GET = route(async () => {
 });
 
 export const POST = route(async (req: Request) => {
-  const operator = requirePerm("content.write");
+  const operator = await requirePerm("content.write");
   const data = await body(req).catch(() => ({}) as any);
   const kind = str(data.kind, "kind", { optional: true }) || "rollup";
   const id = enqueue(kind as any, data.payload ?? {});

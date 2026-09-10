@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
  * It goes through the exact same parse -> fulfil path as a real webhook.
  */
 export const POST = route(async (req: Request) => {
-  requireUser("site");
+  await requireUser("site");
   const data = await body(req);
   const payload = {
     gateway: "mock",

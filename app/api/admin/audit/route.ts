@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async (req: Request) => {
-  requirePerm("audit.read");
+  await requirePerm("audit.read");
   const url = new URL(req.url);
   const p = paging(url, 40);
   const { rows, total } = listAudit({

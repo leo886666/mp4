@@ -8,10 +8,11 @@ import { progressForSeries } from "@/lib/server/repo/engagement";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const GET = route(async (_req: Request, { params }: { params: { id: string } }) => {
+export const GET = route(async (_req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
   const series = getSeries(params.id);
   if (!series) throw notFound("Series not found");
-  const user = optionalUser("site");
+  const user = await optionalUser("site");
   const progress = user ? new Map(progressForSeries(user.id, series.id).map((p) => [p.episode_id, p])) : new Map();
   return ok({
     episodes: listEpisodes(series.id).map((e) => {

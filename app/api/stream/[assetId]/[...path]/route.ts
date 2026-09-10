@@ -16,7 +16,8 @@ export const dynamic = "force-dynamic";
  * configured (VESPER_CDN_BASE) this route 302s to signed CDN URLs instead of
  * proxying bytes.
  */
-export const GET = route(async (req: Request, { params }: { params: { assetId: string; path: string[] } }) => {
+export const GET = route(async (req: Request, ctx: { params: Promise<{ assetId: string; path: string[] }> }) => {
+    const params = await ctx.params;
   const url = new URL(req.url);
   const token = url.searchParams.get("t") || "";
   const claims = verify<{ a: string; e: string; u: string }>(token);

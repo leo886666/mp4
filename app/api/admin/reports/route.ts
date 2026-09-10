@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async (req: Request) => {
-  requirePerm("reports.handle");
+  await requirePerm("reports.handle");
   const url = new URL(req.url);
   const p = paging(url, 25);
   const { rows, total } = listReports({ status: url.searchParams.get("status") ?? undefined, limit: p.perPage, offset: p.offset });

@@ -9,16 +9,18 @@ import { audit } from "@/lib/server/audit";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const GET = route(async (_req: Request, { params }: { params: { id: string } }) => {
-  const { user, creator } = requireCreator();
+export const GET = route(async (_req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const { user, creator } = await requireCreator();
   const series = getSeries(params.id);
   if (!series) throw notFound("Series not found");
   assertOwnsSeries(creator.id, series.creator_id, user.role);
   return ok({ episodes: listEpisodes(series.id, true).map((e) => episodeDTO(e, series.cover_url)) });
 });
 
-export const POST = route(async (req: Request, { params }: { params: { id: string } }) => {
-  const { user, creator } = requireCreator();
+export const POST = route(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const { user, creator } = await requireCreator();
   const series = getSeries(params.id);
   if (!series) throw notFound("Series not found");
   assertOwnsSeries(creator.id, series.creator_id, user.role);

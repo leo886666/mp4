@@ -10,8 +10,9 @@ import { historyFor } from "@/lib/server/repo/engagement";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const GET = route(async (_req: Request, { params }: { params: { id: string } }) => {
-  requirePerm("users.read");
+export const GET = route(async (_req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  await requirePerm("users.read");
   const user = findById(params.id);
   if (!user) throw notFound("User not found");
   const sub = activeSubscription(user.id);
@@ -25,8 +26,9 @@ export const GET = route(async (_req: Request, { params }: { params: { id: strin
   });
 });
 
-export const PATCH = route(async (req: Request, { params }: { params: { id: string } }) => {
-  const operator = requirePerm("users.write");
+export const PATCH = route(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const operator = await requirePerm("users.write");
   const target = findById(params.id);
   if (!target) throw notFound("User not found");
   const data = await body(req);

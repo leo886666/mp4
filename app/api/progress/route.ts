@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 /** Heartbeat from the player. No session => nothing stored, still 200. */
 export const POST = route(async (req: Request) => {
-  const user = optionalUser("site");
+  const user = await optionalUser("site");
   const data = await body(req);
   const episodeId = str(data.episodeId, "episodeId");
   const positionS = num(data.positionS, "positionS", { min: 0 });

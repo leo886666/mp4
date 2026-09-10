@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async (req: Request) => {
-  requirePerm("orders.read");
+  await requirePerm("orders.read");
   const url = new URL(req.url);
   const p = paging(url, 25);
   const { rows, total } = listOrders({

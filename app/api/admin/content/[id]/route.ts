@@ -11,8 +11,9 @@ import { get } from "@/lib/server/db";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const PATCH = route(async (req: Request, { params }: { params: { id: string } }) => {
-  const operator = requirePerm("content.write");
+export const PATCH = route(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const operator = await requirePerm("content.write");
   const series = getSeries(params.id);
   if (!series) throw notFound("Series not found");
   const data = await body(req);

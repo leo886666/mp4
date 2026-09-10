@@ -100,10 +100,15 @@ function registerMaintenanceJobs() {
   });
 }
 
-/** Re-queues anything that was mid-flight when the process died. */
+/**
+ * Re-queues anything that was mid-flight when the process died, plus any job an
+ * instance failed because it had no handler for that kind (see jobs.claim).
+ */
 export function requeueStuckJobs() {
-  const stuck = all<{ id: string }>("SELECT id FROM jobs WHERE status = 'running'");
-  for (const j of stuck) run("UPDATE jobs SET status='queued' WHERE id = ?", j.id);
+  const stuck = all<{ id: string }>(
+    "SELECT id FROM jobs WHERE status = 'running' OR (status = 'failed' AND error IS NULL)"
+  );
+  for (const j of stuck) run("UPDATE jobs SET status='queued', started_at=NULL, attempts=0 WHERE id = ?", j.id);
   return stuck.length;
 }
 

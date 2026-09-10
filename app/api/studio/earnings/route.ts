@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 const DAY = 86400_000;
 
 export const GET = route(async () => {
-  const { creator } = requireCreator();
+  const { creator } = await requireCreator();
   const since = Date.now() - 90 * DAY;
   return ok({
     balance: creator.balance_cents / 100,

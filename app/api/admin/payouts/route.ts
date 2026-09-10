@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async (req: Request) => {
-  requirePerm("console.view");
+  await requirePerm("console.view");
   const url = new URL(req.url);
   const p = paging(url, 25);
   const { rows, total } = listPayouts({ status: url.searchParams.get("status") ?? undefined, limit: p.perPage, offset: p.offset });
@@ -28,7 +28,7 @@ export const GET = route(async (req: Request) => {
 
 /** Run monthly settlement: split the VIP pool by watch time, create payouts. */
 export const POST = route(async (req: Request) => {
-  const operator = requirePerm("payouts.write");
+  const operator = await requirePerm("payouts.write");
   const data = await body(req).catch(() => ({}) as any);
   const period = str(data.period, "period", { optional: true }) || new Date(Date.now() - 30 * 86400_000).toISOString().slice(0, 7);
   const result = settlePeriod(period, operator.id);

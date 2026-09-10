@@ -34,7 +34,7 @@ export const POST = route(async (req: Request) => {
 });
 
 export const GET = route(async () => {
-  const user = currentUser("admin");
+  const user = await currentUser("admin");
   if (!user) return ok({ user: null, permissions: [] });
   return ok({
     user,
@@ -45,7 +45,7 @@ export const GET = route(async () => {
 });
 
 export const DELETE = route(async () => {
-  const token = cookies().get(COOKIE.admin)?.value;
+  const token = (await cookies()).get(COOKIE.admin)?.value;
   if (token) revokeSession(token);
   const res = ok({ signedOut: true }) as NextResponse;
   return clearSessionCookie(res, "admin");

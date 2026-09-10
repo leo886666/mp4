@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 const DAY = 86400_000;
 
 export const GET = route(async () => {
-  const { user, creator } = creatorContext(true);
+  const { user, creator } = await creatorContext(true);
   const cid = creator!.id;
   const since30 = Date.now() - 30 * DAY;
 

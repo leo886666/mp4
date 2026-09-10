@@ -6,12 +6,12 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async () => {
-  const user = requireUser("site");
+  const user = await requireUser("site");
   return ok({ items: listNotifications(user.id), unread: unreadCount(user.id) });
 });
 
 export const POST = route(async () => {
-  const user = requireUser("site");
+  const user = await requireUser("site");
   markAllRead(user.id);
   return ok({ unread: 0 });
 });

@@ -15,8 +15,9 @@ export const maxDuration = 300;
  * to the transcoder. (Production on S3 would finish a real multipart upload
  * here instead of concatenating — same call site, different driver.)
  */
-export const POST = route(async (_req: Request, { params }: { params: { id: string } }) => {
-  const user = requireUser("site");
+export const POST = route(async (_req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const user = await requireUser("site");
   const upload = getUpload(params.id);
   if (!upload) throw notFound("Upload session not found");
   if (upload.user_id !== user.id) throw forbidden();

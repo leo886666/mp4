@@ -6,4 +6,4 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** One request paints the whole home screen: hero, continue watching, rails. */
-export const GET = route(async () => ok(homeView(optionalUser("site"))));
+export const GET = route(async () => ok(homeView(await optionalUser("site"))));

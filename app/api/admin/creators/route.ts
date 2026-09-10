@@ -8,14 +8,14 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = route(async (req: Request) => {
-  requirePerm("content.read");
+  await requirePerm("content.read");
   const p = paging(new URL(req.url), 25);
   const { rows, total } = listCreators(p.perPage, p.offset);
   return ok(paged(rows, total, p));
 });
 
 export const PATCH = route(async (req: Request) => {
-  const operator = requirePerm("content.write");
+  const operator = await requirePerm("content.write");
   const data = await body(req);
   const id = str(data.id, "id");
   if (!getCreator(id)) throw notFound("Creator not found");

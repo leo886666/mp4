@@ -10,8 +10,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** Creator -> review queue. This is the hand-off the ops console picks up. */
-export const POST = route(async (_req: Request, { params }: { params: { id: string } }) => {
-  const { user, creator } = requireCreator();
+export const POST = route(async (_req: Request, ctx: { params: Promise<{ id: string }> }) => {
+    const params = await ctx.params;
+  const { user, creator } = await requireCreator();
   const series = getSeries(params.id);
   if (!series) throw notFound("Series not found");
   assertOwnsSeries(creator.id, series.creator_id, user.role);

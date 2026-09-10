@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   ChevronLeft, Play, Pause, Volume2, VolumeX, Lock, List, Crown,
-  ChevronUp, Heart, Share2, Loader2, Settings,
+  ChevronUp, Heart, Share2, Loader2, Settings, AlertTriangle,
 } from "@/components/icons";
 import { Button } from "@/components/ui";
 import { api, ApiError, track } from "@/lib/client/api";
@@ -66,6 +66,7 @@ export function PlayerClient({
   const [quality, setQuality] = useState<number>(-1);
   const [showQuality, setShowQuality] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
+  const [playbackError, setPlaybackError] = useState<string | null>(null);
 
   /* ------------------------------ load episode ---------------------------- */
 
@@ -74,6 +75,7 @@ export function PlayerClient({
     setLoading(true);
     setLocked(null);
     setPlay(null);
+    setPlaybackError(null);
     setTime(0);
     firedDanmaku.current = new Set();
     setBullets([]);
@@ -123,15 +125,44 @@ export function PlayerClient({
           const instance = new Hls({ enableWorker: true, lowLatencyMode: false, maxBufferLength: 30 });
           instance.loadSource(hls.url);
           instance.attachMedia(video);
+          // Recover what is recoverable; surface what is not, rather than
+          // leaving the viewer on a spinner that never resolves.
           instance.on(Hls.Events.ERROR, (_e: unknown, data: any) => {
-            if (data?.fatal && mp4) video.src = mp4.url;
+            if (!data?.fatal) return;
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+              instance.startLoad();
+              return;
+            }
+            if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+              instance.recoverMediaError();
+              return;
+            }
+            if (mp4) {
+              video.src = mp4.url;
+              return;
+            }
+            instance.destroy();
+            hlsRef.current = null;
+            setPlaybackError(
+              data.details === "bufferIncompatibleCodecsError" || data.details === "manifestIncompatibleCodecsError"
+                ? "This browser can't decode H.264 video."
+                : "Playback failed. Check your connection and try again."
+            );
           });
           hlsRef.current = instance;
         } else if (mp4) {
           video.src = mp4.url;
+        } else {
+          setPlaybackError("This browser doesn't support streaming playback.");
         }
       } else if (mp4) {
         video.src = mp4.url;
+      } else if (play.media.status !== "ready") {
+        setPlaybackError(
+          play.media.status === "failed"
+            ? "This episode failed to process. We're on it."
+            : "This episode is still being prepared — check back in a minute."
+        );
       }
 
       const resume = play.progress?.positionS ?? 0;
@@ -344,12 +375,24 @@ export function PlayerClient({
             </div>
           )}
 
-          {(loading || buffering) && !locked && (
+          {playbackError && !locked && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-8 text-center bg-black/55 backdrop-blur-[2px]">
+              <AlertTriangle className="w-7 h-7 text-white/80" strokeWidth={1.8} />
+              <p className="text-white text-[14px] font-medium leading-relaxed">{playbackError}</p>
+              <button
+                onClick={() => { setPlaybackError(null); setEpN((n) => n); router.refresh(); }}
+                className="mt-1 h-9 px-5 rounded-full bg-white/15 text-white text-[12.5px] font-semibold hover:bg-white/25 transition-colors"
+              >
+                Try again
+              </button>
+            </div>
+          )}
+          {(loading || buffering) && !locked && !playbackError && (
             <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <Loader2 className="w-8 h-8 text-white/80 animate-spin" />
             </span>
           )}
-          {!playing && !loading && !locked && play && (
+          {!playing && !loading && !locked && !playbackError && play && (
             <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="w-16 h-16 rounded-full bg-black/45 backdrop-blur flex items-center justify-center">
                 <Play className="w-7 h-7 fill-white text-white ml-1" />
